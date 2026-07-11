@@ -2,9 +2,11 @@ import { Command } from 'commander';
 import { NodeFSAdapter } from '../../secondary/file-system/node-fs.adapter';
 import { ApiCatalogAdapter } from '../../secondary/pattern-catalog/api-catalog.adapter';
 import { ShellHookAdapter } from '../../secondary/hook-dispatcher/shell-hook.adapter';
+import { GeminiEmbeddingsAdapter } from '../../secondary/semantic-search/gemini-embeddings.adapter';
 import { DesignArchitectureUseCase } from '../../../application/use-cases/design-architecture.use-case';
 import { InitConfigUseCase } from '../../../application/use-cases/init-config.use-case';
 import { VerifyArchitectureUseCase } from '../../../application/use-cases/verify-architecture.use-case';
+import { SearchCodebaseUseCase } from '../../../application/use-cases/search-codebase.use-case';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as yaml from 'yaml';
@@ -130,6 +132,39 @@ export const runCli = async (args: string[] = process.argv) => {
         }
       } catch (err) {
         console.error(`\x1b[31m✘ Verification execution failed: ${(err as Error).message}\x1b[0m`);
+        process.exit(1);
+      }
+    });
+
+  program
+    .command('search <query>')
+    .description('Run semantic code search over codebase files')
+    .option('-l, --limit <count>', 'Maximum number of results to display', '5')
+    .action(async (query, options) => {
+      try {
+        const fileSystemAdapter = new NodeFSAdapter();
+        const embeddingsAdapter = new GeminiEmbeddingsAdapter();
+        const searchUseCase = new SearchCodebaseUseCase(fileSystemAdapter, embeddingsAdapter);
+
+        console.log(`\x1b[36mRunning semantic search for query: "${query}"...\x1b[0m`);
+        const limitVal = parseInt(options.limit, 10);
+        const results = await searchUseCase.execute(query, limitVal);
+
+        if (results.length === 0) {
+          console.log(`\x1b[33mNo matching code blocks found.\x1b[0m`);
+          return;
+        }
+
+        console.log(`\x1b[32m✔ Top ${results.length} semantic matches:\x1b[0m\n`);
+        results.forEach((r, idx) => {
+          console.log(`\x1b[1m#${idx + 1} - ${r.filePath}:${r.startLine}-${r.endLine} (Score: ${r.score.toFixed(4)})\x1b[0m`);
+          console.log(`\x1b[90m--------------------------------------------------\x1b[0m`);
+          const indentedContent = r.content.split('\n').map(line => '  ' + line).join('\n');
+          console.log(indentedContent);
+          console.log(`\x1b[90m--------------------------------------------------\x1b[0m\n`);
+        });
+      } catch (err) {
+        console.error(`\x1b[31m✘ Search failed: ${(err as Error).message}\x1b[0m`);
         process.exit(1);
       }
     });

@@ -8,7 +8,7 @@
 
 Instead of debating directory layouts or manually drafting files, **dotarchitecture** compiles system decisions, compiles Architecture Decision Records (ADRs), creates active agent guides, and monitors code imports to prevent structural drift.
 
-![dotarchitecture Concept Diagram](./assets/dotarchitecture_concept_diagram.png)
+![dotarchitecture Concept Diagram](./assets/dotarchitecture_concept_diagram.jpg)
 
 ---
 
@@ -37,11 +37,73 @@ Most software projects suffer from three architectural problems:
 ### Path 1: Model Context Protocol (MCP) — Recommended
 Use this path when you want an AI assistant (such as Claude Code, Cursor, or Gemini) to query architectural decisions, run validation checks, and verify imports directly as tool calls.
 
-#### 1. Install the MCP Server
-```bash
-npx @dotarchitecture/mcp install
+#### 1. Configure the MCP Server
+
+Add **dotarchitecture** as an MCP server using the stdio command:
+* **Command**: `npx`
+* **Arguments**: `["-y", "dotarchitecture@latest", "mcp"]`
+* **Environment Variable**: `GEMINI_API_KEY` (optional: enables premium hybrid semantic search by querying Gemini embeddings)
+
+##### Cursor Setup
+Add a new MCP server in **Settings > Features > MCP**:
+* **Name**: `dotarchitecture`
+* **Type**: `stdio`
+* **Command**: `npx -y dotarchitecture@latest mcp`
+
+##### Claude Code Setup
+Add to your global settings under `~/.claude/settings.json`:
+```json
+{
+  "mcpServers": {
+    "dotarchitecture": {
+      "command": "npx",
+      "args": ["-y", "dotarchitecture@latest", "mcp"],
+      "env": {
+        "GEMINI_API_KEY": "YOUR_GEMINI_API_KEY"
+      }
+    }
+  }
+}
 ```
-The installer will automatically detect compatible AI tools on your system (e.g., Claude Code, Cursor, Windsurf, VS Code Copilot) and configure the server.
+
+##### GitHub Copilot (VS Code) Setup
+Add to your Copilot settings:
+```json
+{
+  "servers": {
+    "dotarchitecture": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "dotarchitecture@latest", "mcp"],
+      "env": {
+        "GEMINI_API_KEY": "YOUR_GEMINI_API_KEY"
+      }
+    }
+  }
+}
+```
+
+##### Codex CLI Setup
+Add to your `.codex/config.toml` file:
+```toml
+[mcp_servers.dotarchitecture]
+command = "npx"
+args = ["-y", "dotarchitecture@latest", "mcp"]
+[mcp_servers.dotarchitecture.env]
+GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
+```
+
+##### Google Antigravity & OpenCode Setup
+Configure the stdio runner in your agent configuration:
+```json
+{
+  "command": "npx",
+  "args": ["-y", "dotarchitecture@latest", "mcp"],
+  "env": {
+    "GEMINI_API_KEY": "YOUR_GEMINI_API_KEY"
+  }
+}
+```
 
 #### 2. Run Tools Inside the Agent
 Ask your agent:

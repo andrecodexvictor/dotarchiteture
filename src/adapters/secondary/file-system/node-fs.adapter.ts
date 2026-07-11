@@ -234,47 +234,151 @@ ${treeStructure.trim()}
   }
 
   public async writeAgentContext(decision: ArchitectureDecision, isDotContextPresent: boolean): Promise<void> {
-    // 1. Write to .architecture/ (Created regardless!)
     const archDir = this.getAbsolutePath('.architecture');
-    await this.ensureDir(archDir);
+    await this.writeAgentContextDir(archDir, decision);
 
+    if (isDotContextPresent) {
+      const contextDir = this.getAbsolutePath('.context/dotarchitecture');
+      await this.writeAgentContextDir(contextDir, decision);
+    }
+  }
+
+  private async writeAgentContextDir(targetDir: string, decision: ArchitectureDecision): Promise<void> {
+    await this.ensureDir(targetDir);
+    await this.ensureDir(path.join(targetDir, 'docs'));
+    await this.ensureDir(path.join(targetDir, 'agents'));
+    await this.ensureDir(path.join(targetDir, 'skills'));
+
+    const dateStr = new Date().toISOString().split('T')[0];
+
+    // 1. architecture.yaml
     const serializedDecision = yaml.stringify({
       recommendedArchitecture: decision.recommendedArchitecture,
       recommendedInternalPattern: decision.recommendedInternalPattern,
       warnings: decision.warnings,
-      observability: decision.observabilityDeployGuidelines
+      observability: decision.observabilityDeployGuidelines,
+      generatedAt: dateStr
     });
+    await fs.writeFile(path.join(targetDir, 'architecture.yaml'), serializedDecision, 'utf-8');
 
-    const readmeContent = `# Architecture Guide for AI Agents
+    // 2. README.md (Index)
+    const readmeContent = `# Architectural Context & Guides
 
-This directory contains architectural decisions and constraints for this repository.
+Welcome to the project architectural knowledge base. This documentation is optimized for both human developers and AI coding agents using MCP tools.
 
-## Decisions Record
-* **System Model**: ${decision.recommendedArchitecture}
-* **Internal Pattern**: ${decision.recommendedInternalPattern}
+## Core Guides
 
-## Guidelines & Rules for Coding
-1. **Directory Rules**: Respect the structure defined in [folder-structure.md](../docs/adr/folder-structure.md). Do not bypass modules.
-2. **Dependency Rules**:
-   - Clean architecture flows inwards.
-   - Core domain must not import external routers, databases, or frameworks.
-3. **Execution Verification**:
-   - Run \`dotarchitecture verify\` to check for import and directory violations before submitting PRs.
+| Guide | File | Primary Focus |
+| :--- | :--- | :--- |
+| Project Overview | [project-overview.md](./docs/project-overview.md) | High-level system design model, tech stack, and rejected alternatives. |
+| Development Workflow | [development-workflow.md](./docs/development-workflow.md) | Recommended coding styles, ganchos/hooks, and branch guidelines. |
+| Testing Strategy | [testing-strategy.md](./docs/testing-strategy.md) | Testing requirements, APM configurations, and code verification. |
+| Tooling & MCP | [tooling.md](./docs/tooling.md) | CLI commands reference and Model Context Protocol setups. |
 
-## Current Warnings
-${decision.warnings.length > 0 ? decision.warnings.map(w => `* ${w}`).join('\n') : '* No active alerts.'}
+## Agent Specs
+* **Agent Playbook**: [architect-specialist.md](./agents/architect-specialist.md)
+* **Agent Skill**: [verify-layout.md](./skills/verify-layout.md)
 `;
+    await fs.writeFile(path.join(targetDir, 'README.md'), readmeContent, 'utf-8');
 
-    await fs.writeFile(path.join(archDir, 'architecture.yaml'), serializedDecision, 'utf-8');
-    await fs.writeFile(path.join(archDir, 'README.md'), readmeContent, 'utf-8');
+    // 3. docs/project-overview.md
+    const rejectedStr = decision.rejectedArchitectures
+      .map(r => `* **${r.architecture}**: ${r.reason}`)
+      .join('\n');
+    const warningsStr = decision.warnings.length > 0 
+      ? decision.warnings.map(w => `> [!WARNING]\n> ${w}`).join('\n') 
+      : '* No immediate over-engineering warnings detected.';
 
-    // 2. Mirror to .context/dotarchitecture/ if dotcontext is present
-    if (isDotContextPresent) {
-      const contextDir = this.getAbsolutePath('.context/dotarchitecture');
-      await this.ensureDir(contextDir);
-      await fs.writeFile(path.join(contextDir, 'architecture.yaml'), serializedDecision, 'utf-8');
-      await fs.writeFile(path.join(contextDir, 'README.md'), readmeContent, 'utf-8');
-    }
+    const overviewContent = `# Project Architectural Overview
+
+## Decision Outcome
+* **Recommended System Architecture**: **${decision.recommendedArchitecture.toUpperCase()}**
+* **Recommended Internal Design Pattern**: **${decision.recommendedInternalPattern.toUpperCase()}**
+
+## Rejected Options & Trade-offs
+${rejectedStr}
+
+## Active Alerts / Warnings
+${warningsStr}
+
+## Date Generated
+${dateStr}
+`;
+    await fs.writeFile(path.join(targetDir, 'docs', 'project-overview.md'), overviewContent, 'utf-8');
+
+    // 4. docs/development-workflow.md
+    const devStyleStr = decision.recommendedDevStyle.map(d => `* ${d}`).join('\n');
+    const devWorkflowContent = `# Development Workflow Guidelines
+
+This document outlines the coding workflow and development patterns recommended for this codebase.
+
+## Recommended Engineering Styles
+${devStyleStr}
+
+## Extension Ganchos / Event Hooks
+These hooks allow triggering validation scripts during key development lifecycles:
+* \`onNewModuleDesigned\`: Executes when new modules are designed.
+* \`onArchitectureChange\`: Executes when architecture files change.
+* \`onADRAdded\`: Executes when a new ADR is compiled.
+`;
+    await fs.writeFile(path.join(targetDir, 'docs', 'development-workflow.md'), devWorkflowContent, 'utf-8');
+
+    // 5. docs/testing-strategy.md
+    const observabilityStr = decision.observabilityDeployGuidelines.map(o => `* ${o}`).join('\n');
+    const testingStrategyContent = `# Testing Strategy & Observability
+
+Guidelines for verifying execution and monitoring service deployments.
+
+## Testing Guidelines
+* Run unit and integration tests before pushing changes.
+* Maintain clean layer isolation: mock external adapters when testing application use cases.
+
+## Observability & Deploy
+${observabilityStr}
+`;
+    await fs.writeFile(path.join(targetDir, 'docs', 'testing-strategy.md'), testingStrategyContent, 'utf-8');
+
+    // 6. docs/tooling.md
+    const toolingContent = `# CLI & MCP Tooling Reference
+
+Reference for managing and verifying the architectural layout.
+
+## CLI Command Map
+* \`dotarchitecture init\`: Generates template input configs.
+* \`dotarchitecture design\`: Runs evaluations and builds docs/ADRs.
+* \`dotarchitecture verify\`: Scans codebase files and imports to check constraints.
+* \`dotarchitecture mcp\`: Launches the Model Context Protocol stdio server.
+
+## Model Context Protocol (MCP) Setup
+Refer to root README.md for tool integration parameters.
+`;
+    await fs.writeFile(path.join(targetDir, 'docs', 'tooling.md'), toolingContent, 'utf-8');
+
+    // 7. agents/architect-specialist.md
+    const agentPlaybookContent = `# Agent Playbook: Architect Specialist
+
+You are the Architect Specialist agent for this repository. Your mission is to maintain codebase structural integrity and prevent architectural drift.
+
+## Core Directives
+1. **Never bypass layers**:
+   - In Hexagonal pattern: domain files must never import application/adapters/infrastructure.
+   - In Layered pattern: domain files must never import presentation/controllers.
+2. **Consult ADRs**: Before creating new folders or feature modules, read docs under \`docs/adr/\`.
+3. **Verify Compliance**: Always run \`dotarchitecture verify\` (or \`run_verify_checks\` tool) before committing code changes or completing task contracts.
+`;
+    await fs.writeFile(path.join(targetDir, 'agents', 'architect-specialist.md'), agentPlaybookContent, 'utf-8');
+
+    // 8. skills/verify-layout.md
+    const skillContent = `# Agent Skill: Verify Layout Compliance
+
+This skill enables agents to verify directory structure and import links.
+
+## Usage Instructions
+1. Run the \`dotarchitecture verify\` shell command (or invoke the \`run_verify_checks\` tool).
+2. Read the output.
+3. If violations are found, fix the file imports or delete unexpected folders before proceeding to the validation stage.
+`;
+    await fs.writeFile(path.join(targetDir, 'skills', 'verify-layout.md'), skillContent, 'utf-8');
   }
 
   public async scanFiles(): Promise<string[]> {
@@ -338,6 +442,11 @@ ${decision.warnings.length > 0 ? decision.warnings.map(w => `* ${w}`).join('\n')
     }
 
     return imports;
+  }
+
+  public async readFileContent(filePath: string): Promise<string> {
+    const absolutePath = this.getAbsolutePath(filePath);
+    return await fs.readFile(absolutePath, 'utf-8');
   }
 
   public async isDotContextDirectoryPresent(): Promise<boolean> {

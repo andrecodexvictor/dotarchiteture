@@ -4,8 +4,10 @@ import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprot
 import { NodeFSAdapter } from '../../secondary/file-system/node-fs.adapter';
 import { ApiCatalogAdapter } from '../../secondary/pattern-catalog/api-catalog.adapter';
 import { ShellHookAdapter } from '../../secondary/hook-dispatcher/shell-hook.adapter';
+import { GeminiEmbeddingsAdapter } from '../../secondary/semantic-search/gemini-embeddings.adapter';
 import { DesignArchitectureUseCase } from '../../../application/use-cases/design-architecture.use-case';
 import { VerifyArchitectureUseCase } from '../../../application/use-cases/verify-architecture.use-case';
+import { SearchCodebaseUseCase } from '../../../application/use-cases/search-codebase.use-case';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as yaml from 'yaml';
@@ -50,6 +52,24 @@ export const runMcpServer = async () => {
                 description: 'Path to the decision record YAML file (defaults to dotarchitecture.yaml).'
               }
             }
+          }
+        },
+        {
+          name: 'semantic_code_search',
+          description: 'Perform semantic concept searches inside the workspace code files using local VSM matching and optional dense embeddings.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              query: {
+                type: 'string',
+                description: 'The conceptual search query or topic (e.g. database connection routing).'
+              },
+              limit: {
+                type: 'number',
+                description: 'Maximum number of results to return (defaults to 5).'
+              }
+            },
+            required: ['query']
           }
         }
       ]
@@ -163,6 +183,53 @@ export const runMcpServer = async () => {
             {
               type: 'text',
               text: `Error executing verification checks: ${(err as Error).message}`
+            }
+          ]
+        };
+      }
+    }
+
+    if (name === 'semantic_code_search') {
+      try {
+        const query = (args?.query as string) || '';
+        const limit = Number(args?.limit ?? 5);
+
+        if (!query) {
+          throw new Error("Missing query parameter for semantic_code_search");
+        }
+
+        const fileSystemAdapter = new NodeFSAdapter();
+        const embeddingsAdapter = new GeminiEmbeddingsAdapter();
+        const searchUseCase = new SearchCodebaseUseCase(fileSystemAdapter, embeddingsAdapter);
+
+        const results = await searchUseCase.execute(query, limit);
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                status: 'success',
+                query,
+                resultsCount: results.length,
+                results: results.map(r => ({
+                  filePath: r.filePath,
+                  startLine: r.startLine,
+                  endLine: r.endLine,
+                  score: r.score,
+                  content: r.content
+                }))
+              }, null, 2)
+            }
+          ]
+        };
+      } catch (err) {
+        return {
+          isError: true,
+          content: [
+            {
+              type: 'text',
+              text: `Error executing semantic code search: ${(err as Error).message}`
             }
           ]
         };

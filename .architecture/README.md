@@ -1,18 +1,16 @@
-# Architecture Guide for AI Agents
+# Architectural Context & Guides
 
-This directory contains architectural decisions and constraints for this repository.
+Welcome to the project architectural knowledge base. This documentation is optimized for both human developers and AI coding agents using MCP tools.
 
-## Decisions Record
-* **System Model**: modular-monolith
-* **Internal Pattern**: hexagonal
+## Core Guides
 
-## Guidelines & Rules for Coding
-1. **Directory Rules**: Respect the structure defined in [folder-structure.md](../docs/adr/folder-structure.md). Do not bypass modules.
-2. **Dependency Rules**:
-   - Clean architecture flows inwards.
-   - Core domain must not import external routers, databases, or frameworks.
-3. **Execution Verification**:
-   - Run `dotarchitecture verify` to check for import and directory violations before submitting PRs.
+| Guide | File | Primary Focus |
+| :--- | :--- | :--- |
+| Project Overview | [project-overview.md](./docs/project-overview.md) | High-level system design model, tech stack, and rejected alternatives. |
+| Development Workflow | [development-workflow.md](./docs/development-workflow.md) | Recommended coding styles, ganchos/hooks, and branch guidelines. |
+| Testing Strategy | [testing-strategy.md](./docs/testing-strategy.md) | Testing requirements, APM configurations, and code verification. |
+| Tooling & MCP | [tooling.md](./docs/tooling.md) | CLI commands reference and Model Context Protocol setups. |
 
-## Current Warnings
-* No active alerts.
+## Agent Specs
+* **Agent Playbook**: [architect-specialist.md](./agents/architect-specialist.md)
+* **Agent Skill**: [verify-layout.md](./skills/verify-layout.md)

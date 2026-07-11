@@ -9,6 +9,7 @@ export interface FileSystemPort {
   writeAgentContext(decision: ArchitectureDecision, isDotContextPresent: boolean): Promise<void>;
   scanFiles(): Promise<string[]>;
   readFileImports(filePath: string): Promise<string[]>;
+  readFileContent(filePath: string): Promise<string>;
   isDotContextDirectoryPresent(): Promise<boolean>;
   writeDefaultConfig(outputPath: string): Promise<void>;
 }
