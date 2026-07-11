@@ -37,8 +37,14 @@ Most software projects suffer from three architectural problems:
 ### Path 1: Model Context Protocol (MCP) — Recommended
 Use this path when you want an AI assistant (such as Claude Code, Cursor, or Gemini) to query architectural decisions, run validation checks, and verify imports directly as tool calls.
 
-#### 1. Configure the MCP Server
+#### 1. Automatic Configuration (Recommended)
+You can automatically register the MCP server to your **Claude Code** client by running:
+```bash
+npx dotarchitecture mcp-install
+```
+This command automatically detects your OS, locates Claude's `settings.json`, and registers the `dotarchitecture` stdio server.
 
+#### 2. Manual Configurations
 Add **dotarchitecture** as an MCP server using the stdio command:
 * **Command**: `npx`
 * **Arguments**: `["-y", "dotarchitecture@latest", "mcp"]`

@@ -12,4 +12,5 @@ export interface FileSystemPort {
   readFileContent(filePath: string): Promise<string>;
   isDotContextDirectoryPresent(): Promise<boolean>;
   writeDefaultConfig(outputPath: string): Promise<void>;
+  createDirectory(dirPath: string): Promise<void>;
 }

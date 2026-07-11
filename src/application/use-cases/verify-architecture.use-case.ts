@@ -1,34 +1,26 @@
 import { FileSystemPort } from '../ports/file-system.port';
 import { VerificationEngine, Violation } from '../../domain/services/verification-engine.service';
-import * as yaml from 'yaml';
 
 export interface VerifyArchitectureOutput {
   compliant: boolean;
   violations: Violation[];
   patternUsed: string;
+  fixedFolders?: string[];
 }
 
 export class VerifyArchitectureUseCase {
   constructor(private fileSystemPort: FileSystemPort) {}
 
-  public async execute(decisionFilePath: string = 'dotarchitecture.yaml'): Promise<VerifyArchitectureOutput> {
+  public async execute(decisionFilePath: string = 'dotarchitecture.yaml', autofix: boolean = false): Promise<VerifyArchitectureOutput> {
     // 1. Scan files
     const files = await this.fileSystemPort.scanFiles();
 
     // 2. Read decided pattern from dotarchitecture.yaml
     let patternUsed: 'mvc' | 'layered' | 'hexagonal' | 'clean' = 'layered';
     try {
-      // For simplicity, we read using the file system port.
-      // Let's assume we can fetch the parsed configuration/decision file.
-      // We parse the generated dotarchitecture.yaml if it exists.
-      // If it doesn't exist, we fallback to default layered.
       const decisionContent = await this.fileSystemPort.scanFiles().then(async fsFiles => {
         const found = fsFiles.find(f => f.endsWith(decisionFilePath));
         if (found) {
-          // Read content - we will implement readProjectContext or general YAML load in adapter
-          // For simplicity we will assume fileSystemPort can parse it or we parse raw content.
-          // Let's write a utility inside FileSystemPort, but we can also just parse standard file.
-          // We can read context and fetch internal pattern:
           const ctx = await this.fileSystemPort.readProjectContext(decisionFilePath);
           return ctx as any;
         }
@@ -42,10 +34,50 @@ export class VerifyArchitectureUseCase {
       // Fail silently and use default 'layered' pattern
     }
 
+    const fixedFolders: string[] = [];
+
+    // Autofix missing folder scaffolding
+    if (autofix) {
+      if (patternUsed === 'hexagonal' || patternUsed === 'clean') {
+        const targetFolders = [
+          'src/domain/models',
+          'src/domain/services',
+          'src/application/use-cases',
+          'src/application/ports',
+          'src/adapters/primary',
+          'src/adapters/secondary'
+        ];
+        for (const dir of targetFolders) {
+          await this.fileSystemPort.createDirectory(dir);
+          fixedFolders.push(dir);
+        }
+      } else if (patternUsed === 'layered') {
+        const targetFolders = [
+          'src/presentation',
+          'src/application',
+          'src/domain',
+          'src/infrastructure'
+        ];
+        for (const dir of targetFolders) {
+          await this.fileSystemPort.createDirectory(dir);
+          fixedFolders.push(dir);
+        }
+      } else if (patternUsed === 'mvc') {
+        const targetFolders = [
+          'src/controllers',
+          'src/models',
+          'src/views'
+        ];
+        for (const dir of targetFolders) {
+          await this.fileSystemPort.createDirectory(dir);
+          fixedFolders.push(dir);
+        }
+      }
+    }
+
     // 3. Scan dependencies
     const fileDependencies: Record<string, string[]> = {};
     for (const file of files) {
-      // Scan imports inside files (like .ts, .js, .go files)
       if (
         file.endsWith('.ts') ||
         file.endsWith('.js') ||
@@ -68,7 +100,8 @@ export class VerifyArchitectureUseCase {
     return {
       compliant: violations.length === 0,
       violations,
-      patternUsed
+      patternUsed,
+      fixedFolders: fixedFolders.length > 0 ? fixedFolders : undefined
     };
   }
 }

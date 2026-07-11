@@ -7,6 +7,7 @@ import { DesignArchitectureUseCase } from '../../../application/use-cases/design
 import { InitConfigUseCase } from '../../../application/use-cases/init-config.use-case';
 import { VerifyArchitectureUseCase } from '../../../application/use-cases/verify-architecture.use-case';
 import { SearchCodebaseUseCase } from '../../../application/use-cases/search-codebase.use-case';
+import { InstallMcpUseCase } from '../../../application/use-cases/install-mcp.use-case';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as yaml from 'yaml';
@@ -112,13 +113,19 @@ export const runCli = async (args: string[] = process.argv) => {
     .command('verify')
     .description('Validate workspace directory structure and code imports against architecture rules')
     .option('-d, --decision <path>', 'Path to dotarchitecture.yaml decision file', 'dotarchitecture.yaml')
+    .option('--fix', 'Automatically create missing directories for the architecture pattern', false)
     .action(async (options) => {
       try {
         const fileSystemAdapter = new NodeFSAdapter();
         const verifyUseCase = new VerifyArchitectureUseCase(fileSystemAdapter);
 
         console.log(`\x1b[36mVerifying codebase structure against '${options.decision}'...\x1b[0m`);
-        const result = await verifyUseCase.execute(options.decision);
+        const result = await verifyUseCase.execute(options.decision, options.fix);
+
+        if (result.fixedFolders && result.fixedFolders.length > 0) {
+          console.log(`\x1b[32m✔ Scaffolded missing folder structures:\x1b[0m`);
+          result.fixedFolders.forEach(folder => console.log(`  - ${folder}`));
+        }
 
         if (result.compliant) {
           console.log(`\x1b[32m✔ Codebase is fully compliant with the target pattern (${result.patternUsed})!\x1b[0m`);
@@ -132,6 +139,27 @@ export const runCli = async (args: string[] = process.argv) => {
         }
       } catch (err) {
         console.error(`\x1b[31m✘ Verification execution failed: ${(err as Error).message}\x1b[0m`);
+        process.exit(1);
+      }
+    });
+
+  program
+    .command('mcp-install')
+    .description('Automatically install and configure the dotarchitecture MCP server to Claude Code')
+    .action(async () => {
+      try {
+        const installUseCase = new InstallMcpUseCase();
+        console.log(`\x1b[36mRegistering dotarchitecture MCP server to your Claude client config...\x1b[0m`);
+        const result = await installUseCase.execute();
+        if (result.success) {
+          console.log(`\x1b[32m✔ ${result.message}\x1b[0m`);
+          console.log(`\x1b[90mConfiguration file updated: ${result.filePath}\x1b[0m`);
+        } else {
+          console.error(`\x1b[31m✘ ${result.message}\x1b[0m`);
+          process.exit(1);
+        }
+      } catch (err) {
+        console.error(`\x1b[31m✘ Installation error: ${(err as Error).message}\x1b[0m`);
         process.exit(1);
       }
     });

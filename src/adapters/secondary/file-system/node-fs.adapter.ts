@@ -494,4 +494,9 @@ hooks:
     await this.ensureDir(path.dirname(absolutePath));
     await fs.writeFile(absolutePath, content, 'utf-8');
   }
+
+  public async createDirectory(dirPath: string): Promise<void> {
+    const absolutePath = this.getAbsolutePath(dirPath);
+    await this.ensureDir(absolutePath);
+  }
 }
