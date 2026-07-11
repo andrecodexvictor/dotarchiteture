@@ -1,0 +1,39 @@
+{
+  "name": "dotarchitecture",
+  "version": "1.0.0",
+  "description": "An open source system architecture toolkit and agent context generator",
+  "main": "dist/index.js",
+  "bin": {
+    "dotarchitecture": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "jest --passWithNoTests",
+    "start": "ts-node src/index.ts",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "architecture",
+    "design-patterns",
+    "adr",
+    "dotstack",
+    "dotcontext",
+    "mcp",
+    "agentic-coding"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.6.0",
+    "commander": "^11.1.0",
+    "yaml": "^2.3.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.11.5",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

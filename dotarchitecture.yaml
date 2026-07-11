@@ -1,0 +1,39 @@
+recommendedArchitecture: modular-monolith
+rejectedArchitectures:
+  - architecture: monolith
+    reason: A monolith would become a bottleneck for team deployment speeds, domain
+      partitioning, or high throughput scalability requirements.
+  - architecture: microservices
+    reason: Rejected due to high operational cost and complexity. Recommended only
+      for large teams (>= 15 members) with complex domains.
+  - architecture: event-driven
+    reason: Event-driven systems introduce complex debugging, tracing, and eventual
+      consistency issues that are not justified under this workload.
+  - architecture: serverless
+    reason: Serverless structures are highly coupled to cloud execution runtimes and
+      cold-start limitations, which do not align with the runtime requirements.
+recommendedInternalPattern: hexagonal
+recommendedDevStyle:
+  - BDD (Behavior-Driven Development) or high unit/integration test coverage
+  - Trunk-Based Development with short-lived feature branches (< 1 day)
+  - Continuous Integration pipelines with pull-request gatekeepers
+observabilityDeployGuidelines:
+  - Application Performance Monitoring (APM) for server performance tracking
+  - Log rotation and local system log aggregation
+  - Blue-Green deployments or standard rolling updates
+warnings: []
+patterns:
+  - name: Dependency Injection (DI)
+    type: Creational / Architectural Pattern
+    url: https://refactoring.guru/design-patterns/dependency-injection
+    referenceRepos:
+      - name: NestJS Dependency Injection
+        url: https://github.com/nestjs/nest
+      - name: Domain Driven Hexagon (NestJS)
+        url: https://github.com/Sairyss/domain-driven-hexagon
+  - name: Repository Pattern
+    type: Structural Pattern / Data access abstraction
+    url: https://refactoring.guru/design-patterns/repository
+    referenceRepos:
+      - name: TypeScript Clean Architecture Template
+        url: https://github.com/khalilstemmler/solid-book
