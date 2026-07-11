@@ -1,24 +1,150 @@
 # dotarchitecture
 
-`dotarchitecture` is an open-source architectural evaluation tool designed to complement the `dotstack` ecosystem. It reads a project's context, parameters, and technology stacks to recommend high-level architectures, directory structures, design patterns, and generate Architecture Decision Records (ADRs) and context files for developers and AI agents.
+[![npm version](https://img.shields.io/badge/npm-1.0.0-brightgreen.svg)](https://www.npmjs.com/)
+[![CI Build](https://img.shields.io/badge/CI-passing-success.svg)](https://github.com/andrecodexvictor/dotarchiteture/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-This repository holds the design specification, architecture documentation, and initial roadmap for `dotarchitecture`.
+**dotarchitecture** is an open-source, MIT-licensed developer toolkit and active codebase validator that complements the `dotstack` and `dotcontext` ecosystem. It evaluates your project context (team size, complexity, scaling limits, maturity) to automatically recommend, document, and enforce architectural structures.
 
-## Documentation Indexes
+Instead of debating directory layouts or manually drafting files, **dotarchitecture** compiles system decisions, compiles Architecture Decision Records (ADRs), creates active agent guides, and monitors code imports to prevent structural drift.
 
-Detailed specifications can be found in the following documents:
+![dotarchitecture Concept Diagram](./assets/dotarchitecture_concept_diagram.png)
 
-1. **[Product Requirements Document (PRD)](file:///c:/Users/adm/Desktop/dotarchiteture/docs/prd.md)**: Product goals, CLI input schemas, decision matrices, architectural hooks, and V1 MVP scope.
-2. **[Internal Architecture Proposal](file:///c:/Users/adm/Desktop/dotarchiteture/docs/architecture_proposal.md)**: Details on Ports & Adapters (Hexagonal Architecture) design, layer responsibilities, execution flows, and extensibility options.
-3. **[V1 MVP Issue Backlog](file:///c:/Users/adm/Desktop/dotarchiteture/docs/backlog.md)**: Milestone roadmap and issue-by-issue breakdown to guide coding.
+---
 
-## Core Features
+## What Dotarchitecture Is
 
-- **Decentralized Decision Engine**: Suggests monolith, modular monolith, microservices, event-driven, or serverless models based on team size, domain complexity, scale, and maturity constraints.
-- **Stand-alone or Integrated**: Works directly with a standalone `dotarchitecture-input.yaml` file, or reads `dotstack.yaml` properties out of the box if they exist.
-- **AI Agent-Friendly Context**: Compiles ADRs to Markdown and produces machine-readable files under `.context/dotarchitecture/` so code agents can respect architectural boundaries.
-- **Hook-Based Extensibility**: Exposes lifecycle hook events (such as `onNewModuleDesigned` and `onArchitectureChange`) to connect validation scripts or MCP server handlers.
+`dotarchitecture` is three core capabilities in a single tool:
+1. **A Design & Decision Engine**: Evaluates constraints against configurable scoring thresholds and overrides to recommend monoliths, modular monoliths, microservices, event-driven, or serverless models.
+2. **An Active Codebase Validator**: Scans workspace files and parses static code imports to actively detect layout drift and prohibited dependency linkages (e.g. domain layers importing adapters).
+3. **An MCP and Agent Interface**: Launches a built-in Model Context Protocol (MCP) server so coding assistants (like Cursor, Claude Code, Roo Code, and Codex) can query rules, verify layout files, and fetch patterns dynamically.
 
-## License
+---
 
-This project is licensed under the MIT License.
+## Why Dotarchitecture Exists
+
+Most software projects suffer from three architectural problems:
+* **Over-engineering**: Small startup teams scaffolding complex microservices before validating the product domain.
+* **Structural Drift**: Human or AI coding agents placing files in arbitrary directories, bypassing clean boundaries.
+* **Documentation Disconnect**: ADRs and architecture guidelines locked in wikis that developers and coding tools never read.
+
+`dotarchitecture` resolves this layer by coupling system decision matrixes with active filesystem linting and durable context directories (`.architecture/` and optional `.context/dotarchitecture/`) that travel with the codebase.
+
+---
+
+## Getting Started / Como Começar
+
+### Path 1: Model Context Protocol (MCP) — Recommended
+Use this path when you want an AI assistant (such as Claude Code, Cursor, or Gemini) to query architectural decisions, run validation checks, and verify imports directly as tool calls.
+
+#### 1. Install the MCP Server
+```bash
+npx @dotarchitecture/mcp install
+```
+The installer will automatically detect compatible AI tools on your system (e.g., Claude Code, Cursor, Windsurf, VS Code Copilot) and configure the server.
+
+#### 2. Run Tools Inside the Agent
+Ask your agent:
+* *"init the architecture config"*
+* *"design the system architecture based on my context"*
+* *"verify if my codebase complies with the design"*
+
+---
+
+### Path 2: Standalone CLI
+Use this path to execute local commands, initialize config schemas, run build pipeline verifications, or trigger development event hooks.
+
+#### 1. Generate Configuration Template
+```bash
+npx dotarchitecture init
+```
+This generates a commented `dotarchitecture-input.yaml` in your project root.
+
+#### 2. Generate Decisions & ADRs
+```bash
+npx dotarchitecture design
+```
+Reads `dotstack.yaml` (if present) or `dotarchitecture-input.yaml`, and compiles:
+* `dotarchitecture.yaml` (record of choices & rejected paths)
+* `./docs/adr/` (ADR-001 Base System, ADR-002 Testing, and folder layout maps)
+* `./.architecture/` & `./.context/dotarchitecture/` (durable agent context)
+
+#### 3. Run Active Code Validation
+```bash
+npx dotarchitecture verify
+```
+Scans repository files and imports. Exits with code `1` and prints violations if any boundary rules are broken.
+
+---
+
+## Core Concepts
+
+### 1. Shared Context & Mirroring
+One `.architecture/` folder stores durable project choices, which is created regardless of other dependencies to make rules visible to humans and agents. If a `.context/` folder (conforming to `vinilana/dotcontext`) exists, these files are mirrored under `.context/dotarchitecture/`.
+
+```text
+.architecture/ (or .context/dotarchitecture/)
+├── architecture.yaml   # Machine-readable record of recommended styles
+└── README.md           # Agent-focused instructions for layer imports and coding rules
+```
+
+### 2. Active Verification
+The `verify` engine parses code files (TS, JS, Go, Python, Java) using regular expressions to detect dependencies.
+* **Hexagonal Pattern Rules**: Ensures code in `domain/` never imports from `adapters/` or `infrastructure/`.
+* **Layered Pattern Rules**: Ensures code in `domain/` or `services/` never imports from `presentation/` or `controllers/`.
+* **MVC Pattern Rules**: Warns if complex structures (like ports/adapters folders) are introduced inside simple MVC models.
+
+---
+
+## CLI Reference
+
+| Command | Flags | Role |
+| :--- | :--- | :--- |
+| `init` | `-o, --output <path>` | Creates a template `dotarchitecture-input.yaml` file. |
+| `design` | `-f, --file <path>`, `-o, --output <path>` | Evaluates context, queries catalog, compiles ADRs and agent context. |
+| `verify` | `-d, --decision <path>` | Scans workspace directories and imports to check for rules compliance. |
+| `mcp` | — | Launches the Model Context Protocol stdio server. |
+
+---
+
+## MCP Tools Reference
+
+When running the MCP server, `dotarchitecture` exposes two primary tools to the client agent:
+
+### 1. `get_architecture_rules`
+* **Purpose**: Evaluates project configuration context and generates architectural decisions.
+* **Arguments**:
+  * `inputFile` (optional string): Path to configuration file.
+
+### 2. `run_verify_checks`
+* **Purpose**: Scans workspace files and dependency linkages, evaluating them against target patterns.
+* **Arguments**:
+  * `decisionFile` (optional string): Path to the decision YAML file.
+
+---
+
+## Local Development & Setup
+
+To clone the repository and run development tests:
+
+```bash
+# Clone
+git clone https://github.com/andrecodexvictor/dotarchiteture.git
+cd dotarchiteture
+
+# Install dependencies
+npm install
+
+# Build TypeScript
+npm run build
+
+# Run Jest Test Suite
+npm run test
+```
+
+---
+
+## Author & License
+
+* **Author**: André Victor A. O. Santos
+* **License**: Licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
