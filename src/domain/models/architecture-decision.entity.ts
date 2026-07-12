@@ -26,4 +26,7 @@ export interface ArchitectureDecision {
   observabilityDeployGuidelines: string[];
   warnings: string[];
   patterns: DesignPatternReference[];
+  customRationale: string;
+  recommendedFolderScaffold: Array<{ path: string; purpose: string }>;
+  tailoredDesignPatterns: Array<{ name: string; description: string }>;
 }

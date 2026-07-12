@@ -1,26 +1,28 @@
 recommendedArchitecture: modular-monolith
 rejectedArchitectures:
   - architecture: monolith
-    reason: A monolith would become a bottleneck for team deployment speeds, domain
-      partitioning, or high throughput scalability requirements.
+    reason: Um monólito seria um gargalo para a velocidade de entrega do time,
+      deploy desacoplado ou escalabilidade horizontal.
   - architecture: microservices
-    reason: Rejected due to high operational cost and complexity. Recommended only
-      for large teams (>= 15 members) with complex domains.
+    reason: Rejeitado devido ao alto custo operacional. Recomendado apenas para
+      times grandes (>= 15 membros) com alta complexidade.
   - architecture: event-driven
-    reason: Event-driven systems introduce complex debugging, tracing, and eventual
-      consistency issues that are not justified under this workload.
+    reason: Sistemas orientados a eventos trazem complexidade de tracing e
+      consistência eventual que não são justificadas neste escopo.
   - architecture: serverless
-    reason: Serverless structures are highly coupled to cloud execution runtimes and
-      cold-start limitations, which do not align with the runtime requirements.
+    reason: Estruturas serverless criam alto acoplamento com provedores de nuvem e
+      gargalos de cold start que não alinham com o perfil.
 recommendedInternalPattern: hexagonal
 recommendedDevStyle:
-  - BDD (Behavior-Driven Development) or high unit/integration test coverage
-  - Trunk-Based Development with short-lived feature branches (< 1 day)
-  - Continuous Integration pipelines with pull-request gatekeepers
+  - BDD (Behavior-Driven Development) ou alta cobertura de testes
+    unitários/integração
+  - Trunk-Based Development com branchs de features curtas (< 1 dia)
+  - Pipelines de Integração Contínua com gates de validação nos Pull Requests
 observabilityDeployGuidelines:
-  - Application Performance Monitoring (APM) for server performance tracking
-  - Log rotation and local system log aggregation
-  - Blue-Green deployments or standard rolling updates
+  - Application Performance Monitoring (APM) para acompanhar gargalos de rota e
+    consumo de CPU
+  - Rotação e agregação local de logs
+  - Deploy Rolling Update simples ou Blue-Green básico
 warnings: []
 patterns:
   - name: Dependency Injection (DI)
@@ -37,3 +39,28 @@ patterns:
     referenceRepos:
       - name: TypeScript Clean Architecture Template
         url: https://github.com/khalilstemmler/solid-book
+customRationale: "Com base no contexto do projeto, avaliamos um time de **5
+  desenvolvedor(es)** com maturidade **intermediate**, lidando com um domínio de
+  complexidade **medium**. Com um time médio de 5 devs, sugerimos a abordagem
+  **modular-monolith** para facilitar a cooperação em paralelo sem a
+  complexidade de rede e orquestração de múltiplos microsserviços. O domínio de
+  complexidade média sugere o padrão **hexagonal**, oferecendo um bom equilíbrio
+  entre separação de responsabilidades e agilidade de desenvolvimento. "
+recommendedFolderScaffold:
+  - path: src/domain/models
+    purpose: "Entidades ricas de domínio contendo a lógica central de negócio (ex:
+      user.entity.ts)."
+  - path: src/domain/services
+    purpose: Serviços de domínio que lidam com regras envolvendo múltiplos modelos.
+  - path: src/application/use-cases
+    purpose: Casos de uso da aplicação (interatores, commands/queries) orquestrando
+      fluxos.
+  - path: src/application/ports
+    purpose: Interfaces TypeScript definindo contratos para banco de dados e APIs
+      externas.
+  - path: src/adapters/primary
+    purpose: Controladores HTTP NestJS, resolvers GraphQL ou assinantes de eventos.
+  - path: src/adapters/secondary
+    purpose: Implementações de repositório (TypeORM, Prisma), clients HTTP ou
+      integrações físicas.
+tailoredDesignPatterns: []

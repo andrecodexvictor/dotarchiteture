@@ -12,10 +12,10 @@ We need to define a consistent, scalable architectural style for this project th
 * Alternative high-level options were rejected to avoid over-engineering or integration overhead.
 
 ## Rejected Options and Trade-offs
-* **monolith**: A monolith would become a bottleneck for team deployment speeds, domain partitioning, or high throughput scalability requirements.
-* **microservices**: Rejected due to high operational cost and complexity. Recommended only for large teams (>= 15 members) with complex domains.
-* **event-driven**: Event-driven systems introduce complex debugging, tracing, and eventual consistency issues that are not justified under this workload.
-* **serverless**: Serverless structures are highly coupled to cloud execution runtimes and cold-start limitations, which do not align with the runtime requirements.
+* **monolith**: Um monólito seria um gargalo para a velocidade de entrega do time, deploy desacoplado ou escalabilidade horizontal.
+* **microservices**: Rejeitado devido ao alto custo operacional. Recomendado apenas para times grandes (>= 15 membros) com alta complexidade.
+* **event-driven**: Sistemas orientados a eventos trazem complexidade de tracing e consistência eventual que não são justificadas neste escopo.
+* **serverless**: Estruturas serverless criam alto acoplamento com provedores de nuvem e gargalos de cold start que não alinham com o perfil.
 
 ## Warnings & Risks
 * No immediate over-engineering warnings detected.
@@ -24,4 +24,4 @@ We need to define a consistent, scalable architectural style for this project th
 Approved
 
 ## Date
-2026-07-11
+2026-07-12

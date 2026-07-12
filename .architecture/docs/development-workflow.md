@@ -3,9 +3,9 @@
 This document outlines the coding workflow and development patterns recommended for this codebase.
 
 ## Recommended Engineering Styles
-* BDD (Behavior-Driven Development) or high unit/integration test coverage
-* Trunk-Based Development with short-lived feature branches (< 1 day)
-* Continuous Integration pipelines with pull-request gatekeepers
+* BDD (Behavior-Driven Development) ou alta cobertura de testes unitários/integração
+* Trunk-Based Development com branchs de features curtas (< 1 dia)
+* Pipelines de Integração Contínua com gates de validação nos Pull Requests
 
 ## Extension Ganchos / Event Hooks
 These hooks allow triggering validation scripts during key development lifecycles:

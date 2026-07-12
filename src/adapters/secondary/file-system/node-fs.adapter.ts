@@ -289,11 +289,32 @@ Welcome to the project architectural knowledge base. This documentation is optim
       ? decision.warnings.map(w => `> [!WARNING]\n> ${w}`).join('\n') 
       : '* No immediate over-engineering warnings detected.';
 
+    const folderScaffoldsStr = decision.recommendedFolderScaffold
+      .map(f => `| \`${f.path}\` | ${f.purpose} |`)
+      .join('\n');
+    const tailoredPatternsStr = decision.tailoredDesignPatterns.length > 0
+      ? decision.tailoredDesignPatterns.map(p => `* **${p.name}**: ${p.description}`).join('\n')
+      : '* No special GoF/DDD design patterns recommended for this basic scope.';
+
     const overviewContent = `# Project Architectural Overview
 
 ## Decision Outcome
 * **Recommended System Architecture**: **${decision.recommendedArchitecture.toUpperCase()}**
 * **Recommended Internal Design Pattern**: **${decision.recommendedInternalPattern.toUpperCase()}**
+
+## Rationale / Justificativa Personalizada
+${decision.customRationale}
+
+## Target Directory Scaffolding
+Here is the recommended folder map for your internal design pattern using your target stack:
+
+| Directory Path | Purpose / Description |
+| :--- | :--- |
+${folderScaffoldsStr}
+
+## Tailored Design Patterns (GoF & DDD)
+Based on your team size, complexity, and availability specs, we recommend using these patterns:
+${tailoredPatternsStr}
 
 ## Rejected Options & Trade-offs
 ${rejectedStr}
