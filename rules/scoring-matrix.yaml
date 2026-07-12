@@ -1,0 +1,31 @@
+# Scoring Matrix Rules for dotarchitecture Decision Engine
+rules:
+  # Minimum team sizes for physical architecture styles
+  minTeamSizeForMicroservices: 15
+  minTeamSizeForModularMonolith: 5
+  
+  # Target stack modifiers
+  preferredInternalPatterns:
+    nestjs: "hexagonal"
+    react: "feature-based"
+    nextjs: "feature-based"
+    go: "clean"
+    python: "layered"
+
+  # Availability thresholds
+  highAvailabilityMinScale: "medium"
+
+  # Domain Complexity scoring weights
+  domainComplexityWeights:
+    low:
+      mvc: 10
+      layered: 2
+      hexagonal: 0
+    medium:
+      mvc: 3
+      layered: 10
+      hexagonal: 5
+    high:
+      mvc: 0
+      layered: 5
+      hexagonal: 10

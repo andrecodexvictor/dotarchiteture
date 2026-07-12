@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RiskReport",
+  "type": "OBJECT",
+  "properties": {
+    "overallRisk": { "type": "STRING", "enum": ["low", "medium", "high", "critical"] },
+    "riskFactors": {
+      "type": "ARRAY",
+      "items": {
+        "type": "OBJECT",
+        "properties": {
+          "factor": { "type": "STRING" },
+          "description": { "type": "STRING" }
+        }
+      }
+    }
+  },
+  "required": ["overallRisk", "riskFactors"]
+}

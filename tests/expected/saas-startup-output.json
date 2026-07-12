@@ -1,0 +1,4 @@
+{
+  "recommendedArchitecture": "modular-monolith",
+  "recommendedInternalPattern": "hexagonal"
+}

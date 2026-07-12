@@ -1,0 +1,13 @@
+# Default Fallbacks when ProjectContext attributes are missing
+defaults:
+  teamSize: 5
+  teamMaturity: "intermediate"
+  domainComplexity: "medium"
+  scale: "low"
+  availability: "low"
+  auditability: false
+  targetStack: "typescript/nestjs"
+  
+  # Default architecture recommendations when thresholds are not met
+  architecture: "monolith"
+  pattern: "mvc"

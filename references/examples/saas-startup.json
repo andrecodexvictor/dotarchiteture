@@ -1,0 +1,18 @@
+{
+  "project": {
+    "name": "saas-billing-system",
+    "targetStack": "typescript/nestjs"
+  },
+  "context": {
+    "teamSize": 4,
+    "teamMaturity": "advanced",
+    "domainComplexity": "high",
+    "scale": "medium",
+    "availability": "high",
+    "auditability": true
+  },
+  "expected": {
+    "recommendedArchitecture": "modular-monolith",
+    "recommendedInternalPattern": "hexagonal"
+  }
+}

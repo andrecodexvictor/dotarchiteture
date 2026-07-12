@@ -1,0 +1,10 @@
+{
+  "totalEvaluations": 15,
+  "recommendationsAccepted": 13,
+  "recommendationsRejected": 2,
+  "acceptanceRate": 86.6,
+  "overrideTriggers": {
+    "forcedMicroservices": 1,
+    "forcedCleanArchitecture": 1
+  }
+}

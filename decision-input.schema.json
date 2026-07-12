@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DotarchitectureInputConfig",
+  "type": "OBJECT",
+  "properties": {
+    "project": {
+      "type": "OBJECT",
+      "properties": {
+        "name": { "type": "STRING" },
+        "targetStack": { "type": "STRING" }
+      },
+      "required": ["name", "targetStack"]
+    },
+    "context": {
+      "type": "OBJECT",
+      "properties": {
+        "teamSize": { "type": "INTEGER", "minimum": 1 },
+        "teamMaturity": { "type": "STRING", "enum": ["junior", "intermediate", "advanced"] },
+        "domainComplexity": { "type": "STRING", "enum": ["low", "medium", "high"] },
+        "scale": { "type": "STRING", "enum": ["low", "medium", "high"] },
+        "availability": { "type": "STRING", "enum": ["low", "medium", "high"] },
+        "auditability": { "type": "BOOLEAN" }
+      },
+      "required": ["teamSize", "teamMaturity", "domainComplexity", "scale", "availability", "auditability"]
+    },
+    "overrides": {
+      "type": "OBJECT",
+      "properties": {
+        "architecture": { "type": "STRING", "enum": ["monolith", "modular-monolith", "microservices", "event-driven", "serverless"] },
+        "pattern": { "type": "STRING", "enum": ["mvc", "layered", "hexagonal", "clean"] }
+      }
+    },
+    "rules": {
+      "type": "OBJECT",
+      "properties": {
+        "minTeamSizeForMicroservices": { "type": "INTEGER", "minimum": 1 },
+        "minScaleForEventDriven": { "type": "STRING", "enum": ["low", "medium", "high"] },
+        "maxMaturityForActiveRecord": { "type": "STRING", "enum": ["junior", "intermediate", "advanced"] }
+      }
+    },
+    "templatesDir": { "type": "STRING" },
+    "hooks": {
+      "type": "OBJECT",
+      "properties": {
+        "onArchitectureChange": { "type": "STRING" },
+        "onNewModuleDesigned": { "type": "STRING" },
+        "onADRAdded": { "type": "STRING" }
+      }
+    }
+  },
+  "required": ["project", "context"]
+}

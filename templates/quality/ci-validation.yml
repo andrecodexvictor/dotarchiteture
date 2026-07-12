@@ -1,0 +1,28 @@
+name: Codebase Architecture Compliance
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  verify-architecture:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-size: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build engine
+        run: npm run build
+
+      - name: Run compliance check
+        run: npx dotarchitecture verify

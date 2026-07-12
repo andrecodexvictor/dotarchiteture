@@ -1,0 +1,34 @@
+# Architecture Invariants & Dependency Rules
+invariants:
+  # Hexagonal / Clean Architecture Rules
+  hexagonal:
+    forbiddenImports:
+      - source: "domain/"
+        targets: ["adapters/", "infrastructure/"]
+      - source: "application/"
+        targets: ["adapters/", "infrastructure/"]
+    requiredDirectories:
+      - "src/domain/models"
+      - "src/domain/services"
+      - "src/application/use-cases"
+      - "src/application/ports"
+      - "src/adapters/primary"
+      - "src/adapters/secondary"
+
+  # Layered Architecture Rules
+  layered:
+    forbiddenImports:
+      - source: "domain/"
+        targets: ["presentation/", "controllers/"]
+    requiredDirectories:
+      - "src/presentation"
+      - "src/application"
+      - "src/domain"
+      - "src/infrastructure"
+
+  # MVC Rules
+  mvc:
+    requiredDirectories:
+      - "src/controllers"
+      - "src/models"
+      - "src/views"

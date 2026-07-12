@@ -162,6 +162,18 @@ The `verify` engine parses code files (TS, JS, Go, Python, Java) using regular e
 * **Layered Pattern Rules**: Ensures code in `domain/` or `services/` never imports from `presentation/` or `controllers/`.
 * **MVC Pattern Rules**: Warns if complex structures (like ports/adapters folders) are introduced inside simple MVC models.
 
+### 3. Canonical Knowledge Base & Database Directories
+The repository includes a comprehensive architectural database that serves as the engine's canonical resource reference:
+* **`project-context/` & `requirements/`**: Templates and schemas validating stakeholder parameters, functional and non-functional requirements.
+* **`taxonomy/`**: Formal taxonomies classifying architectural styles, quality attributes, and decision dimensions.
+* **`patterns/` & `anti-patterns/`**: Catalogs detailing design tradeoffs, structural benefits, and anti-patterns.
+* **`rules/`**: Concrete weight matrix calculations (`scoring-matrix.yaml`), default fallbacks (`defaults.yaml`), and strict boundaries (`invariants.yaml`).
+* **`methodologies/`**: Standard software processes guides (TDD, BDD, Team Topologies, DDD, C4 Model, etc.).
+* **`templates/`**: Project folder boilerplates (hexagonal, clean architecture, MVC), PR guidelines, and ESLint/Prettier setups.
+* **`references/`**: Case scenarios, golden-case inputs, and migration pathways.
+* **`metrics/`**: Observability indicators recording recommendation acceptance rates, false positives, and reviews.
+
+
 ---
 
 ## CLI Reference

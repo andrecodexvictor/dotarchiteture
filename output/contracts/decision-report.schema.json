@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DecisionReport",
+  "type": "OBJECT",
+  "properties": {
+    "projectId": { "type": "STRING" },
+    "decisionDate": { "type": "STRING" },
+    "evaluationScore": { "type": "INTEGER" },
+    "overridesApplied": { "type": "BOOLEAN" }
+  },
+  "required": ["projectId", "decisionDate", "evaluationScore", "overridesApplied"]
+}

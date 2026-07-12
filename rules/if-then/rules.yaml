@@ -1,0 +1,24 @@
+# Human-readable If-Then Architectural Rules
+rules:
+  - id: rule-microservices
+    if:
+      teamSize:
+        gte: 15
+      scale:
+        eq: "high"
+      availability:
+        eq: "high"
+    then:
+      recommend: "microservices"
+      rationale: "Times grandes com alta demanda de escala e disponibilidade se beneficiam do desacoplamento físico."
+
+  - id: rule-modular-monolith
+    if:
+      teamSize:
+        gte: 5
+        lt: 15
+      domainComplexity:
+        in: ["medium", "high"]
+    then:
+      recommend: "modular-monolith"
+      rationale: "Times médios com complexidade relevante devem usar monólitos modulares para manter isolamento sem overhead de rede."
